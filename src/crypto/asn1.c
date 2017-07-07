@@ -203,7 +203,7 @@ FUNC_HEADER(dump) {
 
 /* END METHODS */
 
-static Py_ssize_t ASN1_len(crypto_ASN1* self) {   
+static Py_ssize_t ASN1_len(crypto_ASN1* self) {
   return self->num_children;
 }
 
@@ -325,7 +325,7 @@ static PyObject* stringToDatetime(char*buf, long len) {
   }
 
   if ( len == 13 ) {
-    len = sscanf( (const char*)buf, "%02d%02d%02d%02d%02d%02d%c", &( time_tm.tm_year ), &( time_tm.tm_mon ), 
+    len = sscanf( (const char*)buf, "%02d%02d%02d%02d%02d%02d%c", &( time_tm.tm_year ), &( time_tm.tm_mon ),
         &( time_tm.tm_mday ), &( time_tm.tm_hour ), &( time_tm.tm_min ), &( time_tm.tm_sec ), &zone );
     //HACK: We don't expect this code to run past 2100s or receive certs pre-2000
     time_tm.tm_year += 2000;
@@ -346,7 +346,7 @@ static PyObject* stringToDatetime(char*buf, long len) {
 #ifdef _BSD_SOURCE
   time_tm.tm_zone = &zone;
 #endif
-  datetime = PyDateTime_FromDateAndTime( time_tm.tm_year, time_tm.tm_mon, time_tm.tm_mday, time_tm.tm_hour, 
+  datetime = PyDateTime_FromDateAndTime( time_tm.tm_year, time_tm.tm_mon, time_tm.tm_mday, time_tm.tm_hour,
       time_tm.tm_min, time_tm.tm_sec, 0 );
 
   /* dont understand */
@@ -368,7 +368,7 @@ crypto_ASN1* loads_asn1(char* buf, long len, long *len_done ){
   ASN1_OCTET_STRING *os=NULL;
   ASN1_INTEGER *ai;
   ASN1_BIT_STRING *bs;
-  
+
   ret=ASN1_get_object((const unsigned char**)&xbuf,&xlen,&xtag,&xclass,len);
   if (ret & 0x80){
     exception_from_error_queue();
@@ -437,12 +437,12 @@ crypto_ASN1* loads_asn1(char* buf, long len, long *len_done ){
       break;
     case V_ASN1_BOOLEAN:
       //HACK: Maybe need another ref of buf? It is pointer of local var :P
-      tmp = (long)d2i_ASN1_BOOLEAN(NULL,(const unsigned char**)&buf,xlen+header_len); 
+      tmp = (long)d2i_ASN1_BOOLEAN(NULL,(const unsigned char**)&buf,xlen+header_len);
       if ( tmp < 0 ) { /*TODO: Errr*/ return NULL; }
       if ( tmp ) {
-        obj->data =Py_True; 
+        obj->data =Py_True;
       } else {
-        obj->data = Py_False; 
+        obj->data = Py_False;
       };
       Py_INCREF( obj->data );
       break;
@@ -455,7 +455,7 @@ crypto_ASN1* loads_asn1(char* buf, long len, long *len_done ){
       free(ctmp);
       break;
     case V_ASN1_OCTET_STRING:
-      os=d2i_ASN1_OCTET_STRING(NULL,(const unsigned char**)&buf,xlen+header_len); 
+      os=d2i_ASN1_OCTET_STRING(NULL,(const unsigned char**)&buf,xlen+header_len);
       if( os!= NULL && os->length>0) {
         obj->data = PyByteArray_FromStringAndSize((const char*)os->data,os->length);
         M_ASN1_OCTET_STRING_free(os);
@@ -474,7 +474,7 @@ crypto_ASN1* loads_asn1(char* buf, long len, long *len_done ){
       tmp = ASN1_ENUMERATED_get(ai);
       M_ASN1_ENUMERATED_free(ai);
       obj->data = PyLong_FromLong(tmp);
-      //TODO: delete with:M_ASN1_ENUMERATED_free(bs); 
+      //TODO: delete with:M_ASN1_ENUMERATED_free(bs);
       //As int with: (long)ASN1_ENUMERATED_get(obj->data)
       break;
     case V_ASN1_NULL:
@@ -500,7 +500,9 @@ crypto_ASN1* loads_asn1(char* buf, long len, long *len_done ){
 
 PyObject* crypto_ASN1_loads(PyObject* spam, PyObject* args) {
   char* buf;
-  long len, done;
+  long done;
+  int len;
+
   if (!PyArg_ParseTuple( args, "s#|:asn1_loads", &buf, &len )){
     return NULL;
   }
@@ -564,7 +566,7 @@ int crypto_ASN1_inner_dump(crypto_ASN1* self, BIO* bdata) {
       time_tm.tm_min = PyDateTime_DATE_GET_MINUTE( self->data );
       time_tm.tm_sec = PyDateTime_DATE_GET_SECOND( self->data );
       ASN1_put_object( &buf, 0, 15, self->tag, self->class );
-      sprintf( (char*)buf, "20%02d%02d%02d%02d%02d%02dZ", time_tm.tm_year , time_tm.tm_mon, 
+      sprintf( (char*)buf, "20%02d%02d%02d%02d%02d%02dZ", time_tm.tm_year , time_tm.tm_mon,
           time_tm.tm_mday , time_tm.tm_hour , time_tm.tm_min , time_tm.tm_sec );
       BIO_write( bdata, source, ( buf - source ) + 15 );
       break;

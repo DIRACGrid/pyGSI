@@ -90,6 +90,11 @@ static PyObject *
 crypto_X509_set_serial_number( crypto_X509Obj * self, PyObject * args )
 {
    const  unsigned char *serial;
+   // FIXME: I think serialLength should be an int
+   // (as per https://docs.python.org/2/c-api/arg.html#c.PyArg_ParseTuple)
+   // but since I am not sure, and we do
+   // not see issues, I do not touch it
+   // for the time being
    long serialLength;
    ASN1_INTEGER *asn1_i;
 
