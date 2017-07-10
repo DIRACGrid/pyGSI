@@ -5,10 +5,11 @@ Installation script for the GSI module
 #import ez_setup
 #ez_setup.use_setuptools()
 
-from distutils.core import setup, Extension
+import os
 import ConfigParser
 
-import os
+from distutils.core import Extension #pylint: disable=import-error,no-name-in-module
+from setuptools import setup, find_packages
 
 here = os.path.realpath(os.path.dirname(__file__))
 srcDir = os.path.join(here, "src")
@@ -45,12 +46,18 @@ def createExtension(extName):
                      ** extraArgs
                     )
 
+# Get the long description from the README file
+with open(os.path.join(here, 'README.rst')) as f:
+    long_description = f.read()
+
 setup(
     name="GSI",
     version='0.6.5',
+    description="Python wrapper module around the OpenSSL library",
+    long_description=long_description,
+    url='https://github.com/DIRACGrid/pyGSI',
     author="Adrian Casajus",
     author_email="adria@ecm.ub.es",
-    description="Python wrapper module around the OpenSSL library (including hack to accept GSI SSL proxies)",
     license="GPLv3",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -66,8 +73,10 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
     ],
+    packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     zip_safe=False,
     #install_requires = ["distribute>0.6", "pip"],
+    python_requires='>=2.7',
     py_modules=['GSI.__init__', 'GSI.tsafe', 'GSI.version'],
     ext_modules=[createExtension(extName) for extName in ("crypto", "rand", "SSL")]
 )
