@@ -880,7 +880,7 @@ static PyObject *
 crypto_X509Extension( PyObject * spam, PyObject * args )
 {
     char *type_name, *value;
-		int val_length;
+    int val_length;
 
     if ( !PyArg_ParseTuple( args, "ss#:X509Extension", &type_name, &value, &val_length ) )
         return NULL;
