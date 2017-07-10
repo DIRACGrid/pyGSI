@@ -8,8 +8,7 @@ Installation script for the GSI module
 import os
 import ConfigParser
 
-from distutils.core import Extension #pylint: disable=import-error,no-name-in-module
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 here = os.path.realpath(os.path.dirname(__file__))
 srcDir = os.path.join(here, "src")
