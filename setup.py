@@ -62,10 +62,10 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        #'Topic :: GSI to python :: Grid proxy certificates',
+        #'Topic :: GSI to python :: Grid proxy certificates', #only for non-sdst packages
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: GPLv3 License',
+        #'License :: OSI Approved :: GPLv3 License',#only for non-sdst packages
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
