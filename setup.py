@@ -62,7 +62,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Topic :: GSI to python :: Grid proxy certificates',
+        #'Topic :: GSI to python :: Grid proxy certificates',
 
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: GPLv3 License',
