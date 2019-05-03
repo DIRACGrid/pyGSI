@@ -11,7 +11,7 @@ gsiVerifyCertWrapper( X509_STORE_CTX * ctx, void *p )
    the X509_STORE, so we must insert it in another callback that gets
    called early enough */
 {
-    ctx->check_issued = gsiCheckIssuedWrapper;
+    X509_STORE_set_check_issued(SSL_CTX_get_cert_store(ctx), gsiCheckIssuedWrapper);
 
     /*Allow proxies*/
     X509_STORE_CTX_set_flags(ctx, X509_V_FLAG_ALLOW_PROXY_CERTS);
@@ -55,14 +55,15 @@ gsiCheckIssuedWrapper( X509_STORE_CTX * ctx, X509 * x, X509 * issuer )
     if ( !( ctx->flags & X509_V_FLAG_CB_ISSUER_CHECK ) )
         return 0;
 #else
-    if ( !( ctx->param->flags & X509_V_FLAG_CB_ISSUER_CHECK ) )
+    if ( !( X509_VERIFY_PARAM_get_flags( X509_STORE_CTX_get0_param( ctx ) ) & X509_V_FLAG_CB_ISSUER_CHECK ) )
         return 0;
 #endif
 
-    ctx->error = ret;
-    ctx->current_cert = x;
-    ctx->current_issuer = issuer;
-    return ctx->verify_cb( 0, ctx );
+    X509_STORE_CTX_set_error( ctx, ret );
+    X509_STORE_CTX_set_current_cert( ctx, x );
+    // FIXME: This doesn't work in OpenSSL 1.1.0+ and I'm not sure what it's doing
+    // ctx->current_issuer = issuer;
+    return (*X509_STORE_CTX_get_verify_cb(ctx))( 0, ctx );
 }
 
 int

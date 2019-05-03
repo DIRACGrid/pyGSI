@@ -94,7 +94,7 @@ crypto_PKey_type( crypto_PKeyObj * self, PyObject * args )
     if ( !PyArg_ParseTuple( args, ":type" ) )
         return NULL;
 
-    return PyInt_FromLong( self->pkey->type );
+    return PyInt_FromLong( EVP_PKEY_type(self->pkey) );
 }
 
 

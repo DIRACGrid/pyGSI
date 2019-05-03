@@ -155,7 +155,7 @@ crypto_X509Name_get_entry( crypto_X509NameObj * self, PyObject * args )
     PyTuple_SET_ITEM( tuple, 0, PyString_FromString( OBJ_nid2sn( nid ) ) );
     PyTuple_SET_ITEM( tuple, 1,
                       PyString_FromStringAndSize( ( char * ) str, l ) );
-    PyTuple_SET_ITEM( tuple, 2, PyInt_FromLong( ent->value->type ) );
+    PyTuple_SET_ITEM( tuple, 2, PyInt_FromLong( ASN1_STRING_type( X509_NAME_ENTRY_get_data(ent) ) ) );
 
     return tuple;
 }
@@ -303,8 +303,9 @@ crypto_X509Name_der( crypto_X509NameObj * self, PyObject * args )
     }
 
     i2d_X509_NAME( self->x509_name, 0 );
-    return PyString_FromStringAndSize( self->x509_name->bytes->data,
-                                       self->x509_name->bytes->length );
+    ASN1_STRING *x509_name_data = X509_NAME_ENTRY_get_data( self->x509_name );
+    return PyString_FromStringAndSize( ASN1_STRING_get0_data(x509_name_data),
+                                       ASN1_STRING_length(x509_name_data) );
 }
 
 static char crypto_X509Name_get_components_doc[] = "\n\

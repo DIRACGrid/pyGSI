@@ -374,11 +374,11 @@ ssl_Context_use_certificate_chain_string( ssl_ContextObj * self,
 
 	mem = BIO_new_mem_buf(certString, -1);
 
-	x509 = PEM_read_bio_X509(mem, NULL, self->ctx->default_passwd_callback,
-			self->ctx->default_passwd_callback_userdata);
+	x509 = PEM_read_bio_X509(mem, NULL, SSL_CTX_get_default_passwd_cb(self->ctx),
+			SSL_CTX_get_default_passwd_cb_userdata(self->ctx));
 	if ( x509 == NULL )
 	{
-		SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_CHAIN_FILE, ERR_R_PEM_LIB);
+		SSLerr(SSL_F_USE_CERTIFICATE_CHAIN_FILE, ERR_R_PEM_LIB);
 		exception_from_error_queue();
 		BIO_free(mem);
 		return NULL;
@@ -398,16 +398,11 @@ ssl_Context_use_certificate_chain_string( ssl_ContextObj * self,
 		/* If we could set up our certificate, now proceed to
 		 * the CA certificates.
 		 */
-
-		if ( self->ctx->extra_certs != NULL )
-		{
-			sk_X509_pop_free(self->ctx->extra_certs, X509_free);
-			self->ctx->extra_certs = NULL;
-		}
+                SSL_CTX_clear_extra_chain_certs(self->ctx);
 
 		while ( (x509 = PEM_read_bio_X509(mem, NULL,
-				self->ctx->default_passwd_callback,
-				self->ctx-> default_passwd_callback_userdata)) != NULL )
+				SSL_CTX_get_default_passwd_cb(self->ctx),
+				SSL_CTX_get_default_passwd_cb_userdata(self->ctx))) != NULL )
 		{
 			ret = SSL_CTX_add_extra_chain_cert(self->ctx, x509);
 			if ( !ret )
@@ -657,8 +652,8 @@ ssl_Context_use_privatekey_string( ssl_ContextObj * self, PyObject * args )
 		return NULL;
 	}
 	pkey = PEM_read_bio_PrivateKey(mem, NULL,
-			self->ctx->default_passwd_callback,
-			self->ctx-> default_passwd_callback_userdata);
+			SSL_CTX_get_default_passwd_cb(self->ctx),
+			SSL_CTX_get_default_passwd_cb_userdata(self->ctx));
 	if ( pkey == NULL )
 	{
 		exception_from_error_queue();
