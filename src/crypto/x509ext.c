@@ -111,7 +111,14 @@ crypto_X509Extension_get_asn1_value( crypto_X509ExtensionObj * self,
     if ( !PyArg_ParseTuple( args, ":get_asn1_value" ) )
         return NULL;
 
-    return (PyObject*)loads_asn1((char*)self->x509_extension->value->data,self->x509_extension->value->length,&done);
+    ASN1_OCTET_STRING *x509_data = X509_EXTENSION_get_data(self->x509_extension);
+    char *string_data = ASN1_STRING_dup(ASN1_STRING_get0_data(x509_data));
+    int len_old = ASN1_STRING_length(string_data);
+    int len_new = len_old;
+    PyObject *result = (PyObject*)loads_asn1(string_data, len_old, &len_new);
+    ASN1_STRING_set(x509_data, string_data, len_new);
+    OPENSSL_free(string_data);
+    return result;
 }
 
 static char crypto_X509Extension_get_raw_value_doc[] = "\n\
@@ -129,7 +136,8 @@ crypto_X509Extension_get_raw_value( crypto_X509ExtensionObj * self,
     if ( !PyArg_ParseTuple( args, ":get_raw_value" ) )
         return NULL;
 
-    return PyByteArray_FromStringAndSize((const char*)self->x509_extension->value->data,self->x509_extension->value->length);
+    ASN1_OCTET_STRING *x509_data = X509_EXTENSION_get_data(self->x509_extension);
+    return PyByteArray_FromStringAndSize(ASN1_STRING_get0_data(x509_data), ASN1_STRING_length(x509_data));
 }
 
 static char crypto_X509Extension_get_nid_doc[] = "\n\
